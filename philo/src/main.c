@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 11:31:58 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/06/24 11:31:59 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/07/09 13:03:36 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,16 +16,30 @@ static int	create_threads(t_philo *philos, pthread_t *monitor_thread)
 {
 	int	i;
 
-	i = 0;
-	while (i < philos[0].data->nb_of_philo)
+	i = -1;
+	while (++i < philos[0].data->nb_of_philo)
 	{
 		if (pthread_create(&philos[i].thread, NULL, &philo_routine,
 				&philos[i]) != 0)
+		{
+			pthread_mutex_lock(&philos[0].data->death_lock);
+			philos[0].data->someone_dead = 1;
+			pthread_mutex_unlock(&philos[0].data->death_lock);
+			while(--i >= 0)
+				pthread_join(philos[i].thread, NULL);
 			return (1);
-		i++;
+		}
 	}
 	if (pthread_create(monitor_thread, NULL, &monitor, philos) != 0)
-		return (1);
+		{
+			pthread_mutex_lock(&philos[0].data->death_lock);
+			philos[0].data->someone_dead = 1;
+			pthread_mutex_unlock(&philos[0].data->death_lock);
+			i = -1;
+			while(++i < philos[0].data->nb_of_philo)
+				pthread_join(philos[i].thread, NULL);
+			return (1);
+		}
 	return (0);
 }
 
