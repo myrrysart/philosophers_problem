@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:05:36 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/06/23 14:28:40 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/09/12 12:29:38 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,49 +18,87 @@
 # include <unistd.h>
 # include <pthread.h>
 # include <sys/time.h>
-# include <string.h>
 # include <limits.h>
+# include <stdbool.h>
+# include <string.h>
 
-typedef struct s_data
+# define MAX_PHILOS 200
+
+typedef enum e_philo_state
 {
-	int				nb_of_philo;
-	int				time_to_die;
-	int				time_to_eat;
-	int				time_to_sleep;
-	int				nb_times_to_eat;
-	int				someone_dead;
-	int				meals_finished;
-	long long		start_time;
-	pthread_mutex_t	*forks;
-	pthread_mutex_t	death_lock;
-	pthread_mutex_t	write_lock;
-}	t_data;
+	DEAD = (1 << 0),
+	SATISFIED = (1 << 1),
+	HOLDING_LEFT = (1 << 2),
+	HOLDING_RIGHT = (1 << 3),
+}	t_philo_state;
 
-typedef struct s_philo
+typedef enum e_sim_state 
 {
-	pthread_t		thread;
-	int				id;
-	int				eating;
-	int				meals_eaten;
-	int				left_fork;
-	int				right_fork;
-	long long		last_meal;
-	t_data			*data;
-}	t_philo;
+	RUNNING = 0,
+	SOMEONE_DIED = (1 << 0),
+	ALL_SATISFIED = (1 << 1),
+}	t_sim_state;
 
+typedef struct s_philo_system	t_philo_system;
+
+typedef struct s_philosopher
+{
+	t_philo_system		*system;
+	int					id;
+	pthread_t			thread;
+	t_philo_state		state;
+	long long			last_meal_time;
+	int					meal_count;
+	int					left_fork_id;
+	int					right_fork_id;
+}	t_philosopher;
+
+typedef struct s_philo_system
+{
+	int					nb_philos;
+	long long			time_to_die;
+	long long			time_to_eat;
+	long long			time_to_sleep;
+	int					target_meal_count;
+	long long			start_time;
+
+	t_philosopher		philosophers[MAX_PHILOS];
+	pthread_t			monitor_thread;
+
+	pthread_mutex_t		forks[MAX_PHILOS];
+	volatile t_sim_state sim_state;
+	pthread_mutex_t		state_mutex;
+	pthread_mutex_t		output_mutex;
+}	t_philo_system;
+
+// Macros for philosopher state (now take philosopher pointer directly)
+# define IS(philosopher, flag) ((philosopher)->state & (flag))
+# define START(philosopher, flag) ((philosopher)->state |= (flag))
+# define END(philosopher, flag) ((philosopher)->state &= ~(flag))
+
+// Core system functions
 int			main(int argc, char **argv);
-int			check_args(int argc, char **argv);
-int			ft_atoi(const char *str);
-int			init_data(t_data *data, char **argv, int argc);
-int			init_philos(t_philo **philos, t_data *data);
-int			init_forks(t_data *data);
-void		*philo_routine(void *philosopher);
-void		*monitor(void *arg);
+int			init_system(t_philo_system *philo, char **argv, int argc);
+void		cleanup_system(t_philo_system *philo);
+
+// Thread functions
+void		*philo_routine(void *arg);
+void		*monitor_routine(void *arg);
+
+// Core operations
+bool		try_acquire_forks(t_philosopher *philosopher);
+void		release_forks(t_philosopher *philosopher);
+void		update_meal_data(t_philosopher *philosopher);
+
+// System monitors
+bool		check_deaths(t_philo_system *philo);
+bool		check_completion(t_philo_system *philo);
+
+// Utilities
 long long	get_time(void);
-void		ft_usleep(long long milliseconds);
-void		ft_usleep_check(long long milliseconds, t_data *data);
-void		print_message(char *str, t_philo *philo);
-void		cleanup(t_data *data, t_philo *philos);
-int			should_continue(t_data *data);
+void		precise_sleep(long long milliseconds);
+void		print_action(t_philosopher *philosopher, char *action);
+void		print_death(t_philosopher *philosopher);
+int			safe_atoi(char *str);
 
 #endif

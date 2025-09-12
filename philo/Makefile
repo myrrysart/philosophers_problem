@@ -6,7 +6,7 @@
 #    By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/06/23 13:50:53 by jyniemit          #+#    #+#              #
-#    Updated: 2025/06/24 09:55:00 by jyniemit         ###   ########.fr        #
+#    Updated: 2025/09/12 19:30:00 by jyniemit         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,9 +23,10 @@ SRCS = $(SRCDIR)/main.c \
        $(SRCDIR)/utils.c \
        $(SRCDIR)/init.c \
        $(SRCDIR)/time.c \
-       $(SRCDIR)/routine.c \
        $(SRCDIR)/monitor.c \
-       $(SRCDIR)/output.c
+       $(SRCDIR)/output.c \
+       $(SRCDIR)/system.c \
+       $(SRCDIR)/philo_routine.c
 
 OBJS = $(SRCS:.c=.o)
 
