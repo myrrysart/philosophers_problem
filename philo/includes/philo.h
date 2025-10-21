@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:05:36 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/21 15:42:08 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/21 18:36:19 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,6 @@
 # include <pthread.h>
 # include <stdbool.h>
 # include <stdio.h>
-# include <stdlib.h>
-# include <string.h>
 # include <sys/time.h>
 # include <unistd.h>
 

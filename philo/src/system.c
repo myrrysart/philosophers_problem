@@ -19,20 +19,38 @@ bool	try_acquire_forks(t_philosopher *philosopher)
 	int				second_fork;
 
 	philo = philosopher->system;
+	pthread_mutex_lock(&philo->state_mutex);
+	if (philo->sim_state != RUNNING)
+	{
+		pthread_mutex_unlock(&philo->state_mutex);
+		return (false);
+	}
+	pthread_mutex_unlock(&philo->state_mutex);
 	if (philo->nb_philos == 1)
 	{
 		pthread_mutex_lock(&philo->forks[0]);
 		print_action(philosopher, "has taken a fork");
 		return (false);
 	}
-	first_fork = philosopher->left_fork_id;
-	second_fork = philosopher->right_fork_id;
-	if (first_fork > second_fork)
+	if ((philosopher->id % 2) == 0)
 	{
-		first_fork = second_fork;
+		first_fork = philosopher->left_fork_id;
+		second_fork = philosopher->right_fork_id;
+	}
+	else
+	{
+		first_fork = philosopher->right_fork_id;
 		second_fork = philosopher->left_fork_id;
 	}
 	pthread_mutex_lock(&philo->forks[first_fork]);
+	pthread_mutex_lock(&philo->state_mutex);
+	if (philo->sim_state != RUNNING)
+	{
+		pthread_mutex_unlock(&philo->state_mutex);
+		pthread_mutex_unlock(&philo->forks[first_fork]);
+		return (false);
+	}
+	pthread_mutex_unlock(&philo->state_mutex);
 	print_action(philosopher, "has taken a fork");
 	pthread_mutex_lock(&philo->forks[second_fork]);
 	print_action(philosopher, "has taken a fork");
@@ -51,11 +69,14 @@ void	release_forks(t_philosopher *philosopher)
 		pthread_mutex_unlock(&philo->forks[0]);
 		return ;
 	}
-	first_fork = philosopher->left_fork_id;
-	second_fork = philosopher->right_fork_id;
-	if (first_fork > second_fork)
+	if ((philosopher->id % 2) == 0)
 	{
-		first_fork = second_fork;
+		first_fork = philosopher->left_fork_id;
+		second_fork = philosopher->right_fork_id;
+	}
+	else
+	{
+		first_fork = philosopher->right_fork_id;
 		second_fork = philosopher->left_fork_id;
 	}
 	pthread_mutex_unlock(&philo->forks[first_fork]);

@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 19:15:00 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/09/12 21:05:00 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/21 17:03:20 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,15 @@ static void	philo_eat(t_philosopher *philosopher)
 {
 	if (try_acquire_forks(philosopher))
 	{
+		/* Post-acquisition sim-state guard */
+		pthread_mutex_lock(&philosopher->system->state_mutex);
+		bool running = (philosopher->system->sim_state == RUNNING);
+		pthread_mutex_unlock(&philosopher->system->state_mutex);
+		if (!running)
+		{
+			release_forks(philosopher);
+			return ;
+		}
 		update_meal_data(philosopher);
 		print_action(philosopher, "is eating");
 		precise_sleep(philosopher->system->time_to_eat);
@@ -41,6 +50,8 @@ static void	philo_sleep(t_philosopher *philosopher)
 static void	philo_think(t_philosopher *philosopher)
 {
 	print_action(philosopher, "is thinking");
+	if ((philosopher->system->nb_philos % 2) == 1)
+		precise_sleep(philosopher->system->time_to_eat / 10);
 }
 
 void	*philo_routine(void *arg)
@@ -51,20 +62,18 @@ void	*philo_routine(void *arg)
 
 	philosopher = (t_philosopher *)arg;
 	philo = philosopher->system;
-	
+	while (get_time() < philo->start_time)
+		usleep(200);
 	if (philo->nb_philos == 1)
 	{
 		print_action(philosopher, "has taken a fork");
-		while (should_continue(philo))
-			usleep(1000);
+		precise_sleep(philo->time_to_die);
 		return (NULL);
 	}
 	first = true;
 	while (should_continue(philo))
 	{
 		philo_think(philosopher);
-		if (first && (philosopher->id % 2 == 1))
-			precise_sleep(philo->time_to_eat / 2);
 		first = false;
 		philo_eat(philosopher);
 		if (!should_continue(philo))
