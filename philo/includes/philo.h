@@ -72,9 +72,6 @@ typedef struct s_philo_system
 }								t_philo_system;
 
 // Macros for philosopher state (now take philosopher pointer directly)
-# define IS(philosopher, flag) ((philosopher)->state & (flag))
-# define START(philosopher, flag) ((philosopher)->state |= (flag))
-# define END(philosopher, flag) ((philosopher)->state &= ~(flag))
 
 // Core system functions
 int								main(int argc, char **argv);

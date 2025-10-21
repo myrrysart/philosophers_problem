@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 19:10:00 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/09/12 19:10:00 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/21 17:59:55 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,8 @@ bool	try_acquire_forks(t_philosopher *philosopher)
 	}
 	pthread_mutex_lock(&philo->forks[first_fork]);
 	print_action(philosopher, "has taken a fork");
-	START(philosopher, HOLDING_LEFT);
 	pthread_mutex_lock(&philo->forks[second_fork]);
 	print_action(philosopher, "has taken a fork");
-	START(philosopher, HOLDING_RIGHT);
 	return (true);
 }
 
@@ -60,8 +58,6 @@ void	release_forks(t_philosopher *philosopher)
 		first_fork = second_fork;
 		second_fork = philosopher->left_fork_id;
 	}
-	END(philosopher, HOLDING_LEFT);
-	END(philosopher, HOLDING_RIGHT);
 	pthread_mutex_unlock(&philo->forks[first_fork]);
 	pthread_mutex_unlock(&philo->forks[second_fork]);
 }
