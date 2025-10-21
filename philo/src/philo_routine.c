@@ -47,7 +47,8 @@ void	*philo_routine(void *arg)
 {
 	t_philosopher	*philosopher;
 	t_philo_system	*philo;
-	
+	bool		first;
+
 	philosopher = (t_philosopher *)arg;
 	philo = philosopher->system;
 	
@@ -58,7 +59,7 @@ void	*philo_routine(void *arg)
 			usleep(1000);
 		return (NULL);
 	}
-	bool first = true;
+	first = true;
 	while (should_continue(philo))
 	{
 		philo_think(philosopher);

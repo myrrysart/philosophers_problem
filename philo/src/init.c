@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 11:31:49 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/09/12 18:50:00 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/21 17:03:39 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,10 +40,10 @@ static int	parse_args(t_philo_system *philo, char **argv, int argc)
 		philo->target_meal_count = safe_atoi(argv[5]);
 	else
 		philo->target_meal_count = -1;
-	
 	if (philo->nb_philos <= 0 || philo->nb_philos > MAX_PHILOS)
 		return (1);
-	if (philo->time_to_die <= 0 || philo->time_to_eat <= 0 || philo->time_to_sleep <= 0)
+	if (philo->time_to_die <= 0 || philo->time_to_eat <= 0
+		|| philo->time_to_sleep <= 0)
 		return (1);
 	if (argc == 6 && philo->target_meal_count <= 0)
 		return (1);
@@ -77,9 +77,7 @@ int	init_system(t_philo_system *philo, char **argv, int argc)
 	}
 	philo->start_time = get_time();
 	philo->sim_state = RUNNING;
-	
 	init_philosophers(philo);
-	
 	if (init_mutexes(philo) != 0)
 	{
 		printf("Error: Failed to initialize mutexes\n");

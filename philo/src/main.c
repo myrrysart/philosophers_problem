@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 11:31:58 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/09/12 18:43:57 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/21 17:07:46 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,16 @@ static int	create_threads(t_philo_system *philo)
 	i = 0;
 	while (i < philo->nb_philos)
 	{
-		if (pthread_create(&philo->philosophers[i].thread, NULL, philo_routine, &philo->philosophers[i]))
+		if (pthread_create(&philo->philosophers[i].thread, NULL, philo_routine,
+				&philo->philosophers[i]))
 		{
 			printf("Error creating philosopher thread %d\n", i);
 			return (1);
 		}
 		i++;
 	}
-	if (pthread_create(&philo->monitor_thread, NULL, monitor_routine, philo) != 0)
+	if (pthread_create(&philo->monitor_thread, NULL, monitor_routine,
+			philo) != 0)
 	{
 		printf("Error creating monitor thread\n");
 		return (1);
