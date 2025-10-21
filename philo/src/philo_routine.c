@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 19:15:00 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/09/12 19:15:00 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/09/12 21:05:00 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,21 +21,6 @@ static bool	should_continue(t_philo_system *philo)
 	pthread_mutex_unlock(&philo->state_mutex);
 	return (result);
 }
-
-static bool	has_eaten_enough(t_philosopher *philosopher)
-{
-	t_philo_system	*philo;
-	bool			result;
-
-	philo = philosopher->system;
-	if (philo->target_meal_count == -1)
-		return (false);
-	pthread_mutex_lock(&philo->state_mutex);
-	result = (philosopher->meal_count >= philo->target_meal_count);
-	pthread_mutex_unlock(&philo->state_mutex);
-	return (result);
-}
-
 static void	philo_eat(t_philosopher *philosopher)
 {
 	if (try_acquire_forks(philosopher))
@@ -73,13 +58,15 @@ void	*philo_routine(void *arg)
 			usleep(1000);
 		return (NULL);
 	}
-	if (philosopher->id % 2 == 1)
-		precise_sleep(philo->time_to_eat / 2);
-	while (should_continue(philo) && !has_eaten_enough(philosopher))
+	bool first = true;
+	while (should_continue(philo))
 	{
 		philo_think(philosopher);
+		if (first && (philosopher->id % 2 == 1))
+			precise_sleep(philo->time_to_eat / 2);
+		first = false;
 		philo_eat(philosopher);
-		if (!should_continue(philo) || has_eaten_enough(philosopher))
+		if (!should_continue(philo))
 			break ;
 		philo_sleep(philosopher);
 	}
