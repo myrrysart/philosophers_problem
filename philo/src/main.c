@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 11:31:58 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/21 17:07:46 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/21 18:13:09 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,8 @@ int	main(int argc, char **argv)
 	philo = &philo_system;
 	if (argc < 5 || argc > 6)
 	{
-		printf("Usage: %s nb_philos time_to_die time_to_eat time_to_sleep [nb_must_eat]\n", argv[0]);
+		printf("Usage: %s nb_philos time_to_die time_to_eat \
+			time_to_sleep [nb_must_eat]\n", argv[0]);
 		return (1);
 	}
 	if (init_system(philo, argv, argc) == 1)

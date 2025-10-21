@@ -6,82 +6,11 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 19:10:00 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/21 17:59:55 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/21 18:53:17 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
-
-bool	try_acquire_forks(t_philosopher *philosopher)
-{
-	t_philo_system	*philo;
-	int				first_fork;
-	int				second_fork;
-
-	philo = philosopher->system;
-	pthread_mutex_lock(&philo->state_mutex);
-	if (philo->sim_state != RUNNING)
-	{
-		pthread_mutex_unlock(&philo->state_mutex);
-		return (false);
-	}
-	pthread_mutex_unlock(&philo->state_mutex);
-	if (philo->nb_philos == 1)
-	{
-		pthread_mutex_lock(&philo->forks[0]);
-		print_action(philosopher, "has taken a fork");
-		return (false);
-	}
-	if ((philosopher->id % 2) == 0)
-	{
-		first_fork = philosopher->left_fork_id;
-		second_fork = philosopher->right_fork_id;
-	}
-	else
-	{
-		first_fork = philosopher->right_fork_id;
-		second_fork = philosopher->left_fork_id;
-	}
-	pthread_mutex_lock(&philo->forks[first_fork]);
-	pthread_mutex_lock(&philo->state_mutex);
-	if (philo->sim_state != RUNNING)
-	{
-		pthread_mutex_unlock(&philo->state_mutex);
-		pthread_mutex_unlock(&philo->forks[first_fork]);
-		return (false);
-	}
-	pthread_mutex_unlock(&philo->state_mutex);
-	print_action(philosopher, "has taken a fork");
-	pthread_mutex_lock(&philo->forks[second_fork]);
-	print_action(philosopher, "has taken a fork");
-	return (true);
-}
-
-void	release_forks(t_philosopher *philosopher)
-{
-	t_philo_system	*philo;
-	int				first_fork;
-	int				second_fork;
-
-	philo = philosopher->system;
-	if (philo->nb_philos == 1)
-	{
-		pthread_mutex_unlock(&philo->forks[0]);
-		return ;
-	}
-	if ((philosopher->id % 2) == 0)
-	{
-		first_fork = philosopher->left_fork_id;
-		second_fork = philosopher->right_fork_id;
-	}
-	else
-	{
-		first_fork = philosopher->right_fork_id;
-		second_fork = philosopher->left_fork_id;
-	}
-	pthread_mutex_unlock(&philo->forks[first_fork]);
-	pthread_mutex_unlock(&philo->forks[second_fork]);
-}
 
 void	update_meal_data(t_philosopher *philosopher)
 {

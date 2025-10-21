@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 19:15:00 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/21 17:03:20 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/21 18:13:51 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,15 @@ static bool	should_continue(t_philo_system *philo)
 	pthread_mutex_unlock(&philo->state_mutex);
 	return (result);
 }
+
 static void	philo_eat(t_philosopher *philosopher)
 {
+	bool	running;
+
 	if (try_acquire_forks(philosopher))
 	{
-		/* Post-acquisition sim-state guard */
 		pthread_mutex_lock(&philosopher->system->state_mutex);
-		bool running = (philosopher->system->sim_state == RUNNING);
+		running = (philosopher->system->sim_state == RUNNING);
 		pthread_mutex_unlock(&philosopher->system->state_mutex);
 		if (!running)
 		{
@@ -58,7 +60,7 @@ void	*philo_routine(void *arg)
 {
 	t_philosopher	*philosopher;
 	t_philo_system	*philo;
-	bool		first;
+	bool			first;
 
 	philosopher = (t_philosopher *)arg;
 	philo = philosopher->system;

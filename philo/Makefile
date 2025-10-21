@@ -27,6 +27,7 @@ SRCS = $(SRCDIR)/main.c \
        $(SRCDIR)/monitor.c \
        $(SRCDIR)/output.c \
        $(SRCDIR)/system.c \
+       $(SRCDIR)/forks.c \
        $(SRCDIR)/philo_routine.c
 
 OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
