@@ -75,7 +75,7 @@ int	init_system(t_philo_system *philo, char **argv, int argc)
 		printf("Error: Invalid arguments\n");
 		return (1);
 	}
-	philo->start_time = get_time();
+	philo->start_time = get_time() + 50;
 	philo->sim_state = RUNNING;
 	init_philosophers(philo);
 	if (init_mutexes(philo) != 0)
