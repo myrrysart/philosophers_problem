@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/philo.h"
+#include "philo.h"
 
 static int	create_threads(t_philo_system *philo)
 {
@@ -58,8 +58,7 @@ int	main(int argc, char **argv)
 	philo = &philo_system;
 	if (argc < 5 || argc > 6)
 	{
-		printf("Usage: %s nb_philos time_to_die time_to_eat \
-			time_to_sleep [nb_must_eat]\n", argv[0]);
+		printf("Error: Invalid arguments\\n");
 		return (1);
 	}
 	if (init_system(philo, argv, argc) == 1)

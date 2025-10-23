@@ -6,7 +6,7 @@
 #    By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/06/23 13:50:53 by jyniemit          #+#    #+#              #
-#    Updated: 2025/10/21 15:39:33 by jyniemit         ###   ########.fr        #
+#    Updated: 2025/10/23 07:10:50 by jyniemit         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,9 @@ SRCS = $(SRCDIR)/main.c \
        $(SRCDIR)/output.c \
        $(SRCDIR)/system.c \
        $(SRCDIR)/forks.c \
-       $(SRCDIR)/philo_routine.c
+       $(SRCDIR)/philo_routine.c \
+       $(SRCDIR)/philo_routine_utils.c \
+       $(SRCDIR)/mutex.c \
 
 OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 

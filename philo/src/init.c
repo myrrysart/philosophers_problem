@@ -6,29 +6,11 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 11:31:49 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/21 17:03:39 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/23 07:17:09 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/philo.h"
-
-static int	init_mutexes(t_philo_system *philo)
-{
-	int	i;
-
-	i = 0;
-	while (i < philo->nb_philos)
-	{
-		if (pthread_mutex_init(&philo->forks[i], NULL) != 0)
-			return (1);
-		i++;
-	}
-	if (pthread_mutex_init(&philo->state_mutex, NULL) != 0)
-		return (1);
-	if (pthread_mutex_init(&philo->output_mutex, NULL) != 0)
-		return (1);
-	return (0);
-}
+#include "philo.h"
 
 static int	parse_args(t_philo_system *philo, char **argv, int argc)
 {
@@ -50,6 +32,32 @@ static int	parse_args(t_philo_system *philo, char **argv, int argc)
 	return (0);
 }
 
+static void	init_one_philo(t_philo_system *s, int i)
+{
+	s->philosophers[i].system = s;
+	s->philosophers[i].id = i;
+	s->philosophers[i].last_meal_time = s->start_time;
+	s->philosophers[i].next_deadline_ms = s->start_time + s->time_to_die;
+	s->philosophers[i].left_fork_id = i;
+	s->philosophers[i].right_fork_id = (i + 1) % s->nb_philos;
+	s->philosophers[i].is_odd = (i % 2);
+	if (s->philosophers[i].left_fork_id < s->philosophers[i].right_fork_id)
+	{
+		s->philosophers[i].frst_fork_id = s->philosophers[i].left_fork_id;
+		s->philosophers[i].scnd_fork_id = s->philosophers[i].right_fork_id;
+	}
+	else
+	{
+		s->philosophers[i].frst_fork_id = s->philosophers[i].right_fork_id;
+		s->philosophers[i].scnd_fork_id = s->philosophers[i].left_fork_id;
+	}
+	s->philosophers[i].frst_fork = &s->forks[s->philosophers[i].frst_fork_id];
+	s->philosophers[i].scnd_fork = &s->forks[s->philosophers[i].scnd_fork_id];
+	if (s->philosophers[i].is_odd)
+		s->philosophers[i].stagger_ms = s->time_to_eat / 2;
+	s->philosophers[i].jitter_us = 200 * (1 + (i % 4));
+}
+
 static void	init_philosophers(t_philo_system *philo)
 {
 	int	i;
@@ -57,13 +65,7 @@ static void	init_philosophers(t_philo_system *philo)
 	i = 0;
 	while (i < philo->nb_philos)
 	{
-		philo->philosophers[i].system = philo;
-		philo->philosophers[i].id = i;
-		philo->philosophers[i].state = 0;
-		philo->philosophers[i].last_meal_time = philo->start_time;
-		philo->philosophers[i].meal_count = 0;
-		philo->philosophers[i].left_fork_id = i;
-		philo->philosophers[i].right_fork_id = (i + 1) % philo->nb_philos;
+		init_one_philo(philo, i);
 		i++;
 	}
 }
@@ -75,8 +77,11 @@ int	init_system(t_philo_system *philo, char **argv, int argc)
 		printf("Error: Invalid arguments\n");
 		return (1);
 	}
+	philo->eat_half = philo->time_to_eat / 2;
+	philo->die_minus_eat = philo->time_to_die - philo->time_to_eat;
 	philo->start_time = get_time() + 50;
 	philo->sim_state = RUNNING;
+	philo->satisfied_count = 0;
 	init_philosophers(philo);
 	if (init_mutexes(philo) != 0)
 	{
@@ -94,6 +99,7 @@ void	cleanup_system(t_philo_system *philo)
 	while (i < philo->nb_philos)
 	{
 		pthread_mutex_destroy(&philo->forks[i]);
+		pthread_mutex_destroy(&philo->philosophers[i].lock);
 		i++;
 	}
 	pthread_mutex_destroy(&philo->state_mutex);

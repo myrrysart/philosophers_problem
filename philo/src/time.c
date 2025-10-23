@@ -6,11 +6,11 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 11:32:11 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/09/12 19:05:00 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/23 03:47:15 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/philo.h"
+#include "philo.h"
 
 long long	get_time(void)
 {

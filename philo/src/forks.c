@@ -6,25 +6,11 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 18:36:45 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/21 18:36:45 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/23 07:19:34 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/philo.h"
-
-static void	fork_order(const t_philosopher *p, int *first, int *second)
-{
-	if ((p->id % 2) == 0)
-	{
-		*first = p->left_fork_id;
-		*second = p->right_fork_id;
-	}
-	else
-	{
-		*first = p->right_fork_id;
-		*second = p->left_fork_id;
-	}
-}
+#include "philo.h"
 
 static bool	sim_running(t_philo_system *philo)
 {
@@ -36,11 +22,26 @@ static bool	sim_running(t_philo_system *philo)
 	return (running);
 }
 
+static bool	lock_second_and_check(t_philo_system *philo, t_philosopher *p,
+		int first, int second)
+{
+	(void)first;
+	pthread_mutex_lock(&philo->forks[second]);
+	if (!sim_running(philo))
+	{
+		pthread_mutex_unlock(&philo->forks[second]);
+		pthread_mutex_unlock(&philo->forks[p->frst_fork_id]);
+		return (false);
+	}
+	print_action(p, "has taken a fork");
+	return (true);
+}
+
 bool	try_acquire_forks(t_philosopher *philosopher)
 {
 	t_philo_system	*philo;
-	int				first_fork;
-	int				second_fork;
+	int				first;
+	int				second;
 
 	philo = philosopher->system;
 	if (!sim_running(philo))
@@ -51,24 +52,23 @@ bool	try_acquire_forks(t_philosopher *philosopher)
 		print_action(philosopher, "has taken a fork");
 		return (false);
 	}
-	fork_order(philosopher, &first_fork, &second_fork);
-	pthread_mutex_lock(&philo->forks[first_fork]);
+	first = philosopher->frst_fork_id;
+	second = philosopher->scnd_fork_id;
+	pthread_mutex_lock(&philo->forks[first]);
 	if (!sim_running(philo))
 	{
-		pthread_mutex_unlock(&philo->forks[first_fork]);
+		pthread_mutex_unlock(&philo->forks[first]);
 		return (false);
 	}
 	print_action(philosopher, "has taken a fork");
-	pthread_mutex_lock(&philo->forks[second_fork]);
-	print_action(philosopher, "has taken a fork");
-	return (true);
+	return (lock_second_and_check(philo, philosopher, first, second));
 }
 
 void	release_forks(t_philosopher *philosopher)
 {
 	t_philo_system	*philo;
-	int				first_fork;
-	int				second_fork;
+	int				first;
+	int				second;
 
 	philo = philosopher->system;
 	if (philo->nb_philos == 1)
@@ -76,7 +76,8 @@ void	release_forks(t_philosopher *philosopher)
 		pthread_mutex_unlock(&philo->forks[0]);
 		return ;
 	}
-	fork_order(philosopher, &first_fork, &second_fork);
-	pthread_mutex_unlock(&philo->forks[first_fork]);
-	pthread_mutex_unlock(&philo->forks[second_fork]);
+	first = philosopher->frst_fork_id;
+	second = philosopher->scnd_fork_id;
+	pthread_mutex_unlock(&philo->forks[second]);
+	pthread_mutex_unlock(&philo->forks[first]);
 }
