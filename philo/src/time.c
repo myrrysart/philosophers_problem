@@ -31,6 +31,6 @@ void	precise_sleep(long long milliseconds)
 		current = get_time();
 		if (current - start >= milliseconds)
 			break ;
-		usleep(500);
+		usleep(100);
 	}
 }

@@ -12,13 +12,36 @@
 
 #include "philo.h"
 
-static void	sync_start(t_philosopher *philosopher)
+static int	sync_start(t_philosopher *philosopher)
 {
-	long long	delay;
-
-	delay = philosopher->system->start_time - get_time();
-	if (delay > 0)
-		precise_sleep(delay);
+	long long start_time;
+	long long now;
+	while (1)
+	{
+		pthread_mutex_lock(&philosopher->system->state_mutex);
+		if (philosopher->system->sim_state & PHILO_ERROR)
+		{
+			pthread_mutex_unlock(&philosopher->system->state_mutex);
+			return (1);
+		}
+		else if (philosopher->system->sim_state == RUNNING)
+		{
+			start_time = philosopher->system->start_time;
+			pthread_mutex_unlock(&philosopher->system->state_mutex);
+			break ;
+		}
+		pthread_mutex_unlock(&philosopher->system->state_mutex);
+		usleep(100);
+	}
+	/* Guard: ensure we don't begin before the scheduled start_time */
+	now = get_time();
+	if (now < start_time)
+		precise_sleep(start_time - now);
+	pthread_mutex_lock(&philosopher->lock);
+	philosopher->last_meal_time = start_time;
+	philosopher->next_deadline_ms = start_time + philosopher->system->time_to_die;
+	pthread_mutex_unlock(&philosopher->lock);
+	return (0);
 }
 
 static void	handle_single_philo(t_philosopher *philosopher)
@@ -42,7 +65,10 @@ void	*philo_routine(void *arg)
 
 	philosopher = (t_philosopher *)arg;
 	philo = philosopher->system;
-	sync_start(philosopher);
+	if (sync_start(philosopher))
+		return (NULL);
+	if (!should_continue(philosopher))
+		return (NULL);
 	if (philo->nb_philos == 1)
 	{
 		handle_single_philo(philosopher);

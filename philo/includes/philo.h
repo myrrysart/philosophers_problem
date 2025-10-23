@@ -33,6 +33,8 @@ typedef enum e_sim_state
 	RUNNING = 0,
 	SOMEONE_DIED = (1 << 0),
 	ALL_SATISFIED = (1 << 1),
+	PHILO_ERROR = (1 << 2),
+	WAITING = (1 << 3)
 }								t_sim_state;
 
 typedef struct s_philo_system	t_philo_system;

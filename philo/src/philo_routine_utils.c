@@ -53,7 +53,7 @@ static void	apply_jitter(t_philosopher *p)
 	long long	now;
 	long long	deadline;
 	long long	remaining;
-	long long	js;
+	long long	jitter_seconds;
 
 	if (p->jitter_us <= 0)
 		return ;
@@ -64,11 +64,11 @@ static void	apply_jitter(t_philosopher *p)
 	remaining = deadline - now;
 	if (remaining > (p->system->time_to_eat + 2))
 	{
-		js = p->jitter_us;
-		if (js > (remaining - (p->system->time_to_eat + 2)) * 1000)
-			js = (remaining - (p->system->time_to_eat + 2)) * 1000;
-		if (js > 0)
-			usleep((useconds_t)js);
+		jitter_seconds = p->jitter_us;
+		if (jitter_seconds > (remaining - (p->system->time_to_eat + 2)) * 1000)
+			jitter_seconds = (remaining - (p->system->time_to_eat + 2)) * 1000;
+		if (jitter_seconds > 0)
+			usleep(jitter_seconds);
 	}
 }
 

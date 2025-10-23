@@ -36,8 +36,8 @@ static void	init_one_philo(t_philo_system *s, int i)
 {
 	s->philosophers[i].system = s;
 	s->philosophers[i].id = i;
-	s->philosophers[i].last_meal_time = s->start_time;
-	s->philosophers[i].next_deadline_ms = s->start_time + s->time_to_die;
+	s->philosophers[i].last_meal_time = 0;
+	s->philosophers[i].next_deadline_ms = 0;
 	s->philosophers[i].left_fork_id = i;
 	s->philosophers[i].right_fork_id = (i + 1) % s->nb_philos;
 	s->philosophers[i].is_odd = (i % 2);
@@ -79,8 +79,8 @@ int	init_system(t_philo_system *philo, char **argv, int argc)
 	}
 	philo->eat_half = philo->time_to_eat / 2;
 	philo->die_minus_eat = philo->time_to_die - philo->time_to_eat;
-	philo->start_time = get_time() + 50;
-	philo->sim_state = RUNNING;
+	philo->start_time = 0;
+	philo->sim_state = WAITING;
 	philo->satisfied_count = 0;
 	init_philosophers(philo);
 	if (init_mutexes(philo) != 0)

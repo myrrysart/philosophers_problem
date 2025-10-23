@@ -22,6 +22,9 @@ static int	create_threads(t_philo_system *philo)
 		if (pthread_create(&philo->philosophers[i].thread, NULL, philo_routine,
 				&philo->philosophers[i]))
 		{
+			pthread_mutex_lock(&philo->state_mutex);
+			philo->sim_state = PHILO_ERROR;
+			pthread_mutex_unlock(&philo->state_mutex);
 			printf("Error creating philosopher thread %d\n", i);
 			return (1);
 		}
@@ -32,6 +35,18 @@ static int	create_threads(t_philo_system *philo)
 	{
 		printf("Error creating monitor thread\n");
 		return (1);
+	}
+	pthread_mutex_lock(&philo->state_mutex);
+	philo->start_time = get_time() + 200;
+	philo->sim_state = RUNNING;
+	pthread_mutex_unlock(&philo->state_mutex);
+	/* Initialize per-philosopher timing to avoid monitor races */
+	for (i = 0; i < philo->nb_philos; i++)
+	{
+		pthread_mutex_lock(&philo->philosophers[i].lock);
+		philo->philosophers[i].last_meal_time = philo->start_time;
+		philo->philosophers[i].next_deadline_ms = philo->start_time + philo->time_to_die;
+		pthread_mutex_unlock(&philo->philosophers[i].lock);
 	}
 	return (0);
 }
@@ -64,7 +79,12 @@ int	main(int argc, char **argv)
 	if (init_system(philo, argv, argc) == 1)
 		return (1);
 	if (create_threads(philo) == 1)
+	{
+		join_threads(philo);
+		cleanup_system(philo);
 		return (1);
+
+	}
 	join_threads(philo);
 	cleanup_system(philo);
 	return (0);

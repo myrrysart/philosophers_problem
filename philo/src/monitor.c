@@ -17,6 +17,22 @@ void	*monitor_routine(void *arg)
 	t_philo_system	*philo;
 
 	philo = (t_philo_system *)arg;
+	while(1)
+	{
+		pthread_mutex_lock(&philo->state_mutex);
+		if (philo->sim_state & PHILO_ERROR)
+		{
+			pthread_mutex_unlock(&philo->state_mutex);
+			return (NULL);
+		}
+		else if (philo->sim_state == RUNNING)
+		{
+			pthread_mutex_unlock(&philo->state_mutex);
+			break ;
+		}
+		pthread_mutex_unlock(&philo->state_mutex);
+		usleep(100);
+	}
 	while (1)
 	{
 		if (check_deaths(philo))
@@ -35,6 +51,8 @@ static bool	philo_expired(t_philosopher *p, long long now)
 	pthread_mutex_lock(&p->lock);
 	deadline = p->next_deadline_ms;
 	pthread_mutex_unlock(&p->lock);
+	if (deadline == 0)
+		return (false);
 	return (now > deadline);
 }
 
