@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 19:15:00 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/23 05:00:06 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/23 18:45:38 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,6 @@ static int	sync_start(t_philosopher *philosopher)
 		pthread_mutex_unlock(&philosopher->system->state_mutex);
 		usleep(100);
 	}
-	/* Guard: ensure we don't begin before the scheduled start_time */
 	now = get_time();
 	if (now < start_time)
 		precise_sleep(start_time - now);

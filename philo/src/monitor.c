@@ -15,6 +15,8 @@
 void	*monitor_routine(void *arg)
 {
 	t_philo_system	*philo;
+		long long	start_time;
+		long long	now;
 
 	philo = (t_philo_system *)arg;
 	while(1)
@@ -27,7 +29,11 @@ void	*monitor_routine(void *arg)
 		}
 		else if (philo->sim_state == RUNNING)
 		{
+			start_time = philo->start_time;
 			pthread_mutex_unlock(&philo->state_mutex);
+			now = get_time();
+			if (now < start_time)
+				precise_sleep(start_time - now);
 			break ;
 		}
 		pthread_mutex_unlock(&philo->state_mutex);
