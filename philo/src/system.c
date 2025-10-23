@@ -6,35 +6,11 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 19:10:00 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/23 03:44:47 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/23 08:20:11 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-
-static int	mark_satisfied_if_needed(t_philo_system *philo, t_philosopher *p)
-{
-	int	newly;
-
-	newly = 0;
-	pthread_mutex_lock(&p->lock);
-	if (philo->target_meal_count != -1
-		&& p->meal_count >= philo->target_meal_count
-		&& p->satisfied_marked == 0)
-	{
-		p->satisfied_marked = 1;
-		p->state |= SATISFIED;
-		newly = 1;
-	}
-	pthread_mutex_unlock(&p->lock);
-	if (newly)
-	{
-		pthread_mutex_lock(&philo->state_mutex);
-		philo->satisfied_count += 1;
-		pthread_mutex_unlock(&philo->state_mutex);
-	}
-	return (newly);
-}
 
 void	update_meal_data(t_philosopher *philosopher)
 {
@@ -49,8 +25,19 @@ void	update_meal_data(t_philosopher *philosopher)
 	philosopher->meal_count += 1;
 	if (philosopher->meal_count == 1)
 		philosopher->stagger_ms = 0;
+	if (philo->target_meal_count != -1
+		&& philosopher->meal_count >= philo->target_meal_count
+		&& philosopher->satisfied_marked == 0)
+	{
+		philosopher->satisfied_marked = 1;
+		philosopher->state |= SATISFIED;
+		pthread_mutex_unlock(&philosopher->lock);
+		pthread_mutex_lock(&philo->state_mutex);
+		philo->satisfied_count++;
+		pthread_mutex_unlock(&philo->state_mutex);
+		return ;
+	}
 	pthread_mutex_unlock(&philosopher->lock);
-	(void)mark_satisfied_if_needed(philo, philosopher);
 }
 
 bool	check_completion(t_philo_system *philo)
