@@ -6,89 +6,102 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 11:31:49 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/06/24 11:31:57 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/23 07:17:09 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/philo.h"
+#include "philo.h"
 
-static int	init_mutexes(t_data *data)
+static int	parse_args(t_philo_system *philo, char **argv, int argc)
 {
-	int	i;
-
-	data->forks = malloc(sizeof(pthread_mutex_t) * data->nb_of_philo);
-	if (!data->forks)
-		return (1);
-	i = 0;
-	while (i < data->nb_of_philo)
-	{
-		if (pthread_mutex_init(&data->forks[i], NULL) != 0)
-			return (1);
-		i++;
-	}
-	if (pthread_mutex_init(&data->death_lock, NULL) != 0)
-		return (1);
-	if (pthread_mutex_init(&data->write_lock, NULL) != 0)
-		return (1);
-	return (0);
-}
-
-int	init_data(t_data *data, char **argv, int argc)
-{
-	data->nb_of_philo = ft_atoi(argv[1]);
-	data->time_to_die = ft_atoi(argv[2]);
-	data->time_to_eat = ft_atoi(argv[3]);
-	data->time_to_sleep = ft_atoi(argv[4]);
+	philo->nb_philos = safe_atoi(argv[1]);
+	philo->time_to_die = safe_atoi(argv[2]);
+	philo->time_to_eat = safe_atoi(argv[3]);
+	philo->time_to_sleep = safe_atoi(argv[4]);
 	if (argc == 6)
-		data->nb_times_to_eat = ft_atoi(argv[5]);
+		philo->target_meal_count = safe_atoi(argv[5]);
 	else
-		data->nb_times_to_eat = -1;
-	data->someone_dead = 0;
-	data->meals_finished = 0;
-	data->start_time = get_time();
-	if (init_mutexes(data) != 0)
+		philo->target_meal_count = -1;
+	if (philo->nb_philos <= 0 || philo->nb_philos > MAX_PHILOS)
+		return (1);
+	if (philo->time_to_die <= 0 || philo->time_to_eat <= 0
+		|| philo->time_to_sleep <= 0)
+		return (1);
+	if (argc == 6 && philo->target_meal_count <= 0)
 		return (1);
 	return (0);
 }
 
-int	init_philos(t_philo **philos, t_data *data)
+static void	init_one_philo(t_philo_system *s, int i)
+{
+	s->philosophers[i].system = s;
+	s->philosophers[i].id = i;
+	s->philosophers[i].last_meal_time = s->start_time;
+	s->philosophers[i].next_deadline_ms = s->start_time + s->time_to_die;
+	s->philosophers[i].left_fork_id = i;
+	s->philosophers[i].right_fork_id = (i + 1) % s->nb_philos;
+	s->philosophers[i].is_odd = (i % 2);
+	if (s->philosophers[i].left_fork_id < s->philosophers[i].right_fork_id)
+	{
+		s->philosophers[i].frst_fork_id = s->philosophers[i].left_fork_id;
+		s->philosophers[i].scnd_fork_id = s->philosophers[i].right_fork_id;
+	}
+	else
+	{
+		s->philosophers[i].frst_fork_id = s->philosophers[i].right_fork_id;
+		s->philosophers[i].scnd_fork_id = s->philosophers[i].left_fork_id;
+	}
+	s->philosophers[i].frst_fork = &s->forks[s->philosophers[i].frst_fork_id];
+	s->philosophers[i].scnd_fork = &s->forks[s->philosophers[i].scnd_fork_id];
+	if (s->philosophers[i].is_odd)
+		s->philosophers[i].stagger_ms = s->time_to_eat / 2;
+	s->philosophers[i].jitter_us = 200 * (1 + (i % 4));
+}
+
+static void	init_philosophers(t_philo_system *philo)
 {
 	int	i;
 
-	*philos = malloc(sizeof(t_philo) * data->nb_of_philo);
-	if (!*philos)
-		return (1);
 	i = 0;
-	while (i < data->nb_of_philo)
+	while (i < philo->nb_philos)
 	{
-		(*philos)[i].id = i + 1;
-		(*philos)[i].eating = 0;
-		(*philos)[i].meals_eaten = 0;
-		(*philos)[i].left_fork = i;
-		(*philos)[i].right_fork = (i + 1) % data->nb_of_philo;
-		(*philos)[i].last_meal = data->start_time;
-		(*philos)[i].data = data;
+		init_one_philo(philo, i);
 		i++;
 	}
+}
+
+int	init_system(t_philo_system *philo, char **argv, int argc)
+{
+	if (parse_args(philo, argv, argc) != 0)
+	{
+		printf("Error: Invalid arguments\n");
+		return (1);
+	}
+	philo->eat_half = philo->time_to_eat / 2;
+	philo->die_minus_eat = philo->time_to_die - philo->time_to_eat;
+	philo->start_time = get_time() + 50;
+	philo->sim_state = RUNNING;
+	philo->satisfied_count = 0;
+	init_philosophers(philo);
+	if (init_mutexes(philo) != 0)
+	{
+		printf("Error: Failed to initialize mutexes\n");
+		return (1);
+	}
 	return (0);
 }
 
-void	cleanup(t_data *data, t_philo *philos)
+void	cleanup_system(t_philo_system *philo)
 {
 	int	i;
 
-	if (data->forks)
+	i = 0;
+	while (i < philo->nb_philos)
 	{
-		i = 0;
-		while (i < data->nb_of_philo)
-		{
-			pthread_mutex_destroy(&data->forks[i]);
-			i++;
-		}
-		free(data->forks);
+		pthread_mutex_destroy(&philo->forks[i]);
+		pthread_mutex_destroy(&philo->philosophers[i].lock);
+		i++;
 	}
-	pthread_mutex_destroy(&data->death_lock);
-	pthread_mutex_destroy(&data->write_lock);
-	if (philos)
-		free(philos);
+	pthread_mutex_destroy(&philo->state_mutex);
+	pthread_mutex_destroy(&philo->output_mutex);
 }

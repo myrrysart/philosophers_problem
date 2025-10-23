@@ -1,2 +1,4 @@
-philosophers.txt
-AGENTS.md
+socrates
+philo/philo
+*.swp
+*.o

@@ -6,57 +6,66 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 11:31:58 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/06/24 11:31:59 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/21 18:13:09 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/philo.h"
+#include "philo.h"
 
-static int	create_threads(t_philo *philos, pthread_t *monitor_thread)
+static int	create_threads(t_philo_system *philo)
 {
 	int	i;
 
 	i = 0;
-	while (i < philos[0].data->nb_of_philo)
+	while (i < philo->nb_philos)
 	{
-		if (pthread_create(&philos[i].thread, NULL, &philo_routine,
-				&philos[i]) != 0)
+		if (pthread_create(&philo->philosophers[i].thread, NULL, philo_routine,
+				&philo->philosophers[i]))
+		{
+			printf("Error creating philosopher thread %d\n", i);
 			return (1);
+		}
 		i++;
 	}
-	if (pthread_create(monitor_thread, NULL, &monitor, philos) != 0)
+	if (pthread_create(&philo->monitor_thread, NULL, monitor_routine,
+			philo) != 0)
+	{
+		printf("Error creating monitor thread\n");
 		return (1);
+	}
 	return (0);
 }
 
-static void	join_threads(t_philo *philos, pthread_t monitor_thread)
+static void	join_threads(t_philo_system *philo)
 {
 	int	i;
 
 	i = 0;
-	while (i < philos[0].data->nb_of_philo)
+	while (i < philo->nb_philos)
 	{
-		pthread_join(philos[i].thread, NULL);
+		pthread_join(philo->philosophers[i].thread, NULL);
 		i++;
 	}
-	pthread_join(monitor_thread, NULL);
+	pthread_join(philo->monitor_thread, NULL);
 }
 
 int	main(int argc, char **argv)
 {
-	t_data		data;
-	t_philo		*philos;
-	pthread_t	monitor_thread;
+	t_philo_system	philo_system;
+	t_philo_system	*philo;
 
-	if (check_args(argc, argv) == 1)
+	philo_system = (t_philo_system){};
+	philo = &philo_system;
+	if (argc < 5 || argc > 6)
+	{
+		printf("Error: Invalid arguments\\n");
 		return (1);
-	if (init_data(&data, argv, argc) == 1)
+	}
+	if (init_system(philo, argv, argc) == 1)
 		return (1);
-	if (init_philos(&philos, &data) == 1)
+	if (create_threads(philo) == 1)
 		return (1);
-	if (create_threads(philos, &monitor_thread) == 1)
-		return (1);
-	join_threads(philos, monitor_thread);
-	cleanup(&data, philos);
+	join_threads(philo);
+	cleanup_system(philo);
 	return (0);
 }

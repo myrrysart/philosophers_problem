@@ -5,104 +5,67 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/24 11:32:01 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/06/24 11:32:03 by jyniemit         ###   ########.fr       */
+/*   Created: 2025/09/12 19:20:00 by jyniemit          #+#    #+#             */
+/*   Updated: 2025/10/23 06:47:51 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/philo.h"
+#include "philo.h"
 
-static int	check_meal_completion(t_philo *philos)
+void	*monitor_routine(void *arg)
 {
-	int	i;
-	int	all_ate_enough;
+	t_philo_system	*philo;
 
-	if (philos[0].data->nb_times_to_eat == -1)
-		return (0);
-	pthread_mutex_lock(&philos[0].data->death_lock);
-	all_ate_enough = 1;
-	i = 0;
-	while (i < philos[0].data->nb_of_philo)
+	philo = (t_philo_system *)arg;
+	while (1)
 	{
-		if (philos[i].meals_eaten < philos[0].data->nb_times_to_eat)
-		{
-			all_ate_enough = 0;
+		if (check_deaths(philo))
 			break ;
-		}
-		i++;
-	}
-	if (all_ate_enough)
-		philos[0].data->meals_finished = 1;
-	pthread_mutex_unlock(&philos[0].data->death_lock);
-	return (all_ate_enough);
-}
-
-static int	check_philosopher_death(t_philo *philos, int i)
-{
-	long long	last_meal;
-	long long	current_time;
-
-	pthread_mutex_lock(&philos[0].data->death_lock);
-	if (philos[0].data->someone_dead)
-	{
-		pthread_mutex_unlock(&philos[0].data->death_lock);
-		return (0);
-	}
-	last_meal = philos[i].last_meal;
-	current_time = get_time();
-	if (current_time - last_meal > philos[0].data->time_to_die)
-	{
-		pthread_mutex_unlock(&philos[0].data->death_lock);
-		pthread_mutex_lock(&philos[0].data->write_lock);
-		pthread_mutex_lock(&philos[0].data->death_lock);
-		philos[0].data->someone_dead = 1;
-		pthread_mutex_unlock(&philos[0].data->death_lock);
-		printf("%lld %d died\n", current_time - philos[0].data->start_time,
-			philos[i].id);
-		pthread_mutex_unlock(&philos[0].data->write_lock);
-		return (1);
-	}
-	pthread_mutex_unlock(&philos[0].data->death_lock);
-	return (0);
-}
-
-static int	check_deaths_batch(t_philo *philos, int start, int end)
-{
-	int	i;
-
-	i = start;
-	while (i < end && i < philos[0].data->nb_of_philo)
-	{
-		if (check_philosopher_death(philos, i))
-			return (1);
-		i++;
-	}
-	return (0);
-}
-
-void	*monitor(void *arg)
-{
-	t_philo	*philos;
-	int		cycle;
-	int		chunk;
-
-	philos = (t_philo *)arg;
-	cycle = 0;
-	while (should_continue(philos[0].data))
-	{
-		if (cycle % 10 == 0 && check_meal_completion(philos))
-			return (NULL);
-		chunk = 0;
-		while (chunk < philos[0].data->nb_of_philo)
-		{
-			if (check_deaths_batch(philos, chunk, chunk + 32))
-				return (NULL);
-			chunk += 32;
-			if (chunk < philos[0].data->nb_of_philo)
-				usleep(10);
-		}
-		cycle++;
+		if (check_completion(philo))
+			break ;
 		usleep(1000);
 	}
 	return (NULL);
+}
+
+static bool	philo_expired(t_philosopher *p, long long now)
+{
+	long long	deadline;
+
+	pthread_mutex_lock(&p->lock);
+	deadline = p->next_deadline_ms;
+	pthread_mutex_unlock(&p->lock);
+	return (now > deadline);
+}
+
+static void	signal_death(t_philo_system *philo, t_philosopher *p)
+{
+	pthread_mutex_lock(&philo->state_mutex);
+	philo->sim_state = SOMEONE_DIED;
+	pthread_mutex_unlock(&philo->state_mutex);
+	pthread_mutex_lock(&p->lock);
+	p->state |= DEAD;
+	pthread_mutex_unlock(&p->lock);
+	pthread_mutex_lock(&philo->output_mutex);
+	print_death(p);
+	pthread_mutex_unlock(&philo->output_mutex);
+}
+
+bool	check_deaths(t_philo_system *philo)
+{
+	int			i;
+	long long	current_time;
+
+	current_time = get_time();
+	i = 0;
+	while (i < philo->nb_philos)
+	{
+		if (philo_expired(&philo->philosophers[i], current_time))
+		{
+			signal_death(philo, &philo->philosophers[i]);
+			return (true);
+		}
+		i++;
+	}
+	return (false);
 }
