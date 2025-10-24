@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 11:31:58 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/24 13:05:48 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/24 15:01:13 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,9 @@ static int	create_threads(t_philo_system *philo)
 	if (pthread_create(&philo->monitor_thread, NULL, monitor_routine,
 			philo) != 0)
 	{
+		pthread_mutex_lock(&philo->state_mutex);
+		philo->sim_state = PHILO_ERROR;
+		pthread_mutex_unlock(&philo->state_mutex);
 		printf("Error creating monitor thread\n");
 		return (1);
 	}
