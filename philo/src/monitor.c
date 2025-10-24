@@ -6,26 +6,24 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 19:20:00 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/23 06:47:51 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/24 12:13:05 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	*monitor_routine(void *arg)
+static bool	monitor_startup_wait(t_philo_system *philo)
 {
-	t_philo_system	*philo;
-		long long	start_time;
-		long long	now;
+	long long		start_time;
+	long long		now;
 
-	philo = (t_philo_system *)arg;
-	while(1)
+	while (1)
 	{
 		pthread_mutex_lock(&philo->state_mutex);
 		if (philo->sim_state & PHILO_ERROR)
 		{
 			pthread_mutex_unlock(&philo->state_mutex);
-			return (NULL);
+			return (1);
 		}
 		else if (philo->sim_state == RUNNING)
 		{
@@ -39,6 +37,16 @@ void	*monitor_routine(void *arg)
 		pthread_mutex_unlock(&philo->state_mutex);
 		usleep(100);
 	}
+	return (0);
+}
+
+void	*monitor_routine(void *arg)
+{
+	t_philo_system	*philo;
+
+	philo = (t_philo_system *)arg;
+	if (monitor_startup_wait(philo))
+		return (NULL);
 	while (1)
 	{
 		if (check_deaths(philo))

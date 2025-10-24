@@ -6,16 +6,14 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 19:15:00 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/23 18:45:38 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/24 12:30:27 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static int	sync_start(t_philosopher *philosopher)
+static int	sync_startup_wait(t_philosopher *philosopher, long long *start_ms)
 {
-	long long start_time;
-	long long now;
 	while (1)
 	{
 		pthread_mutex_lock(&philosopher->system->state_mutex);
@@ -26,19 +24,29 @@ static int	sync_start(t_philosopher *philosopher)
 		}
 		else if (philosopher->system->sim_state == RUNNING)
 		{
-			start_time = philosopher->system->start_time;
+			*start_ms = philosopher->system->start_time;
 			pthread_mutex_unlock(&philosopher->system->state_mutex);
 			break ;
 		}
 		pthread_mutex_unlock(&philosopher->system->state_mutex);
 		usleep(100);
 	}
+	return (0);
+}
+
+static int	sync_start(t_philosopher *philosopher)
+{
+	long long	start_ms;
+	long long	now;
+
+	if (sync_startup_wait(philosopher, &start_ms))
+		return (1);
 	now = get_time();
-	if (now < start_time)
-		precise_sleep(start_time - now);
+	if (now < start_ms)
+		precise_sleep(start_ms - now);
 	pthread_mutex_lock(&philosopher->lock);
-	philosopher->last_meal_time = start_time;
-	philosopher->next_deadline_ms = start_time + philosopher->system->time_to_die;
+	philosopher->last_meal_time = start_ms;
+	philosopher->next_deadline_ms = start_ms + philosopher->system->time_to_die;
 	pthread_mutex_unlock(&philosopher->lock);
 	return (0);
 }

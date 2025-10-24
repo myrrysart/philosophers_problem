@@ -6,13 +6,13 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 11:31:58 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/23 18:46:53 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/24 13:05:48 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static int	create_threads(t_philo_system *philo)
+static int	create_and_check_if_all_are_done(t_philo_system *philo)
 {
 	int	i;
 
@@ -30,6 +30,13 @@ static int	create_threads(t_philo_system *philo)
 		}
 		i++;
 	}
+	return (0);
+}
+
+static int	create_threads(t_philo_system *philo)
+{
+	if (create_and_check_if_all_are_done(philo))
+		return (1);
 	if (pthread_create(&philo->monitor_thread, NULL, monitor_routine,
 			philo) != 0)
 	{
@@ -40,15 +47,6 @@ static int	create_threads(t_philo_system *philo)
 	philo->start_time = get_time() + 200;
 	philo->sim_state = RUNNING;
 	pthread_mutex_unlock(&philo->state_mutex);
-	i = 0;
-	while (i < philo->nb_philos;)
-	{
-		pthread_mutex_lock(&philo->philosophers[i].lock);
-		philo->philosophers[i].last_meal_time = philo->start_time;
-		philo->philosophers[i].next_deadline_ms = philo->start_time + philo->time_to_die;
-		pthread_mutex_unlock(&philo->philosophers[i].lock);
-		i++;
-	}
 	return (0);
 }
 
@@ -84,7 +82,6 @@ int	main(int argc, char **argv)
 		join_threads(philo);
 		cleanup_system(philo);
 		return (1);
-
 	}
 	join_threads(philo);
 	cleanup_system(philo);
