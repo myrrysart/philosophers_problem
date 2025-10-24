@@ -12,29 +12,29 @@
 
 #include "philo.h"
 
-static bool	monitor_startup_wait(t_philo_system *philo)
+static bool	monitor_startup_wait(t_philo_system *sim)
 {
 	long long		start_time;
 	long long		now;
 
 	while (1)
 	{
-		pthread_mutex_lock(&philo->state_mutex);
-		if (philo->sim_state & PHILO_ERROR)
+		pthread_mutex_lock(&sim->state_mutex);
+		if (sim->sim_state & PHILO_ERROR)
 		{
-			pthread_mutex_unlock(&philo->state_mutex);
+			pthread_mutex_unlock(&sim->state_mutex);
 			return (1);
 		}
-		else if (philo->sim_state == RUNNING)
+		else if (sim->sim_state == RUNNING)
 		{
-			start_time = philo->start_time;
-			pthread_mutex_unlock(&philo->state_mutex);
+			start_time = sim->start_time;
+			pthread_mutex_unlock(&sim->state_mutex);
 			now = get_time();
 			if (now < start_time)
 				precise_sleep(start_time - now);
 			break ;
 		}
-		pthread_mutex_unlock(&philo->state_mutex);
+		pthread_mutex_unlock(&sim->state_mutex);
 		usleep(100);
 	}
 	return (0);
@@ -42,16 +42,16 @@ static bool	monitor_startup_wait(t_philo_system *philo)
 
 void	*monitor_routine(void *arg)
 {
-	t_philo_system	*philo;
+	t_philo_system *sim;
 
-	philo = (t_philo_system *)arg;
-	if (monitor_startup_wait(philo))
+	sim = (t_philo_system *)arg;
+	if (monitor_startup_wait(sim))
 		return (NULL);
 	while (1)
 	{
-		if (check_deaths(philo))
+		if (check_deaths(sim))
 			break ;
-		if (check_completion(philo))
+		if (check_completion(sim))
 			break ;
 		usleep(1000);
 	}
@@ -70,31 +70,31 @@ static bool	philo_expired(t_philosopher *p, long long now)
 	return (now > deadline);
 }
 
-static void	signal_death(t_philo_system *philo, t_philosopher *p)
+static void	signal_death(t_philo_system *sim, t_philosopher *p)
 {
-	pthread_mutex_lock(&philo->state_mutex);
-	philo->sim_state = SOMEONE_DIED;
-	pthread_mutex_unlock(&philo->state_mutex);
+	pthread_mutex_lock(&sim->state_mutex);
+	sim->sim_state = SOMEONE_DIED;
+	pthread_mutex_unlock(&sim->state_mutex);
 	pthread_mutex_lock(&p->lock);
 	p->state |= DEAD;
 	pthread_mutex_unlock(&p->lock);
-	pthread_mutex_lock(&philo->output_mutex);
+	pthread_mutex_lock(&sim->output_mutex);
 	print_death(p);
-	pthread_mutex_unlock(&philo->output_mutex);
+	pthread_mutex_unlock(&sim->output_mutex);
 }
 
-bool	check_deaths(t_philo_system *philo)
+bool	check_deaths(t_philo_system *sim)
 {
 	int			i;
 	long long	current_time;
 
 	current_time = get_time();
 	i = 0;
-	while (i < philo->nb_philos)
+	while (i < sim->nb_philos)
 	{
-		if (philo_expired(&philo->philosophers[i], current_time))
+		if (philo_expired(&sim->philosophers[i], current_time))
 		{
-			signal_death(philo, &philo->philosophers[i]);
+			signal_death(sim, &sim->philosophers[i]);
 			return (true);
 		}
 		i++;

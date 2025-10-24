@@ -12,25 +12,25 @@
 
 #include "philo.h"
 
-static bool	sim_running(t_philo_system *philo)
+static bool	sim_running(t_philo_system *sim)
 {
 	bool	running;
 
-	pthread_mutex_lock(&philo->state_mutex);
-	running = (philo->sim_state == RUNNING);
-	pthread_mutex_unlock(&philo->state_mutex);
+	pthread_mutex_lock(&sim->state_mutex);
+	running = (sim->sim_state == RUNNING);
+	pthread_mutex_unlock(&sim->state_mutex);
 	return (running);
 }
 
-static bool	lock_second_and_check(t_philo_system *philo, t_philosopher *p,
+static bool	lock_second_and_check(t_philo_system *sim, t_philosopher *p,
 		int first, int second)
 {
 	(void)first;
-	pthread_mutex_lock(&philo->forks[second]);
-	if (!sim_running(philo))
+	pthread_mutex_lock(&sim->forks[second]);
+	if (!sim_running(sim))
 	{
-		pthread_mutex_unlock(&philo->forks[second]);
-		pthread_mutex_unlock(&philo->forks[p->frst_fork_id]);
+		pthread_mutex_unlock(&sim->forks[second]);
+		pthread_mutex_unlock(&sim->forks[p->frst_fork_id]);
 		return (false);
 	}
 	print_action(p, "has taken a fork");
@@ -39,45 +39,45 @@ static bool	lock_second_and_check(t_philo_system *philo, t_philosopher *p,
 
 bool	try_acquire_forks(t_philosopher *philosopher)
 {
-	t_philo_system	*philo;
+	t_philo_system *sim;
 	int				first;
 	int				second;
 
-	philo = philosopher->system;
-	if (!sim_running(philo))
+	sim = philosopher->system;
+	if (!sim_running(sim))
 		return (false);
-	if (philo->nb_philos == 1)
+	if (sim->nb_philos == 1)
 	{
-		pthread_mutex_lock(&philo->forks[0]);
+		pthread_mutex_lock(&sim->forks[0]);
 		print_action(philosopher, "has taken a fork");
 		return (false);
 	}
 	first = philosopher->frst_fork_id;
 	second = philosopher->scnd_fork_id;
-	pthread_mutex_lock(&philo->forks[first]);
-	if (!sim_running(philo))
+	pthread_mutex_lock(&sim->forks[first]);
+	if (!sim_running(sim))
 	{
-		pthread_mutex_unlock(&philo->forks[first]);
+		pthread_mutex_unlock(&sim->forks[first]);
 		return (false);
 	}
 	print_action(philosopher, "has taken a fork");
-	return (lock_second_and_check(philo, philosopher, first, second));
+	return (lock_second_and_check(sim, philosopher, first, second));
 }
 
 void	release_forks(t_philosopher *philosopher)
 {
-	t_philo_system	*philo;
+	t_philo_system *sim;
 	int				first;
 	int				second;
 
-	philo = philosopher->system;
-	if (philo->nb_philos == 1)
+	sim = philosopher->system;
+	if (sim->nb_philos == 1)
 	{
-		pthread_mutex_unlock(&philo->forks[0]);
+		pthread_mutex_unlock(&sim->forks[0]);
 		return ;
 	}
 	first = philosopher->frst_fork_id;
 	second = philosopher->scnd_fork_id;
-	pthread_mutex_unlock(&philo->forks[second]);
-	pthread_mutex_unlock(&philo->forks[first]);
+	pthread_mutex_unlock(&sim->forks[second]);
+	pthread_mutex_unlock(&sim->forks[first]);
 }

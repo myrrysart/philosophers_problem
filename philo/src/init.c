@@ -12,22 +12,22 @@
 
 #include "philo.h"
 
-static int	parse_args(t_philo_system *philo, char **argv, int argc)
+static int	parse_args(t_philo_system *sim, char **argv, int argc)
 {
-	philo->nb_philos = safe_atoi(argv[1]);
-	philo->time_to_die = safe_atoi(argv[2]);
-	philo->time_to_eat = safe_atoi(argv[3]);
-	philo->time_to_sleep = safe_atoi(argv[4]);
+	sim->nb_philos = safe_atoi(argv[1]);
+	sim->time_to_die = safe_atoi(argv[2]);
+	sim->time_to_eat = safe_atoi(argv[3]);
+	sim->time_to_sleep = safe_atoi(argv[4]);
 	if (argc == 6)
-		philo->target_meal_count = safe_atoi(argv[5]);
+		sim->target_meal_count = safe_atoi(argv[5]);
 	else
-		philo->target_meal_count = -1;
-	if (philo->nb_philos <= 0 || philo->nb_philos > MAX_PHILOS)
+		sim->target_meal_count = -1;
+	if (sim->nb_philos <= 0 || sim->nb_philos > MAX_PHILOS)
 		return (1);
-	if (philo->time_to_die <= 0 || philo->time_to_eat <= 0
-		|| philo->time_to_sleep <= 0)
+	if (sim->time_to_die <= 0 || sim->time_to_eat <= 0
+		|| sim->time_to_sleep <= 0)
 		return (1);
-	if (argc == 6 && philo->target_meal_count <= 0)
+	if (argc == 6 && sim->target_meal_count <= 0)
 		return (1);
 	return (0);
 }
@@ -58,32 +58,32 @@ static void	init_one_philo(t_philo_system *s, int i)
 	s->philosophers[i].jitter_us = 200 * (1 + (i % 4));
 }
 
-static void	init_philosophers(t_philo_system *philo)
+static void	init_philosophers(t_philo_system *sim)
 {
 	int	i;
 
 	i = 0;
-	while (i < philo->nb_philos)
+	while (i < sim->nb_philos)
 	{
-		init_one_philo(philo, i);
+		init_one_philo(sim, i);
 		i++;
 	}
 }
 
-int	init_system(t_philo_system *philo, char **argv, int argc)
+int	init_system(t_philo_system *sim, char **argv, int argc)
 {
-	if (parse_args(philo, argv, argc) != 0)
+	if (parse_args(sim, argv, argc) != 0)
 	{
 		printf("Error: Invalid arguments\n");
 		return (1);
 	}
-	philo->eat_half = philo->time_to_eat / 2;
-	philo->die_minus_eat = philo->time_to_die - philo->time_to_eat;
-	philo->start_time = 0;
-	philo->sim_state = WAITING;
-	philo->satisfied_count = 0;
-	init_philosophers(philo);
-	if (init_mutexes(philo) != 0)
+	sim->eat_half = sim->time_to_eat / 2;
+	sim->die_minus_eat = sim->time_to_die - sim->time_to_eat;
+	sim->start_time = 0;
+	sim->sim_state = WAITING;
+	sim->satisfied_count = 0;
+	init_philosophers(sim);
+	if (init_mutexes(sim) != 0)
 	{
 		printf("Error: Failed to initialize mutexes\n");
 		return (1);
@@ -91,17 +91,17 @@ int	init_system(t_philo_system *philo, char **argv, int argc)
 	return (0);
 }
 
-void	cleanup_system(t_philo_system *philo)
+void	cleanup_system(t_philo_system *sim)
 {
 	int	i;
 
 	i = 0;
-	while (i < philo->nb_philos)
+	while (i < sim->nb_philos)
 	{
-		pthread_mutex_destroy(&philo->forks[i]);
-		pthread_mutex_destroy(&philo->philosophers[i].lock);
+		pthread_mutex_destroy(&sim->forks[i]);
+		pthread_mutex_destroy(&sim->philosophers[i].lock);
 		i++;
 	}
-	pthread_mutex_destroy(&philo->state_mutex);
-	pthread_mutex_destroy(&philo->output_mutex);
+	pthread_mutex_destroy(&sim->state_mutex);
+	pthread_mutex_destroy(&sim->output_mutex);
 }

@@ -68,15 +68,15 @@ static void	run_cycle(t_philosopher *philosopher)
 void	*philo_routine(void *arg)
 {
 	t_philosopher	*philosopher;
-	t_philo_system	*philo;
+	t_philo_system *sim;
 
 	philosopher = (t_philosopher *)arg;
-	philo = philosopher->system;
+	sim = philosopher->system;
 	if (sync_start(philosopher))
 		return (NULL);
 	if (!should_continue(philosopher))
 		return (NULL);
-	if (philo->nb_philos == 1)
+	if (sim->nb_philos == 1)
 	{
 		handle_single_philo(philosopher);
 		return (NULL);

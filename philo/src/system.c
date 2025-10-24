@@ -14,43 +14,43 @@
 
 void	update_meal_data(t_philosopher *philosopher)
 {
-	t_philo_system	*philo;
+	t_philo_system *sim;
 	long long		now;
 
-	philo = philosopher->system;
+	sim = philosopher->system;
 	now = get_time();
 	pthread_mutex_lock(&philosopher->lock);
 	philosopher->last_meal_time = now;
-	philosopher->next_deadline_ms = now + philo->time_to_die;
+	philosopher->next_deadline_ms = now + sim->time_to_die;
 	philosopher->meal_count += 1;
 	if (philosopher->meal_count == 1)
 		philosopher->stagger_ms = 0;
-	if (philo->target_meal_count != -1
-		&& philosopher->meal_count >= philo->target_meal_count
+	if (sim->target_meal_count != -1
+		&& philosopher->meal_count >= sim->target_meal_count
 		&& philosopher->satisfied_marked == 0)
 	{
 		philosopher->satisfied_marked = 1;
 		philosopher->state |= SATISFIED;
 		pthread_mutex_unlock(&philosopher->lock);
-		pthread_mutex_lock(&philo->state_mutex);
-		philo->satisfied_count++;
-		pthread_mutex_unlock(&philo->state_mutex);
+		pthread_mutex_lock(&sim->state_mutex);
+		sim->satisfied_count++;
+		pthread_mutex_unlock(&sim->state_mutex);
 		return ;
 	}
 	pthread_mutex_unlock(&philosopher->lock);
 }
 
-bool	check_completion(t_philo_system *philo)
+bool	check_completion(t_philo_system *sim)
 {
-	if (philo->target_meal_count == -1)
+	if (sim->target_meal_count == -1)
 		return (false);
-	pthread_mutex_lock(&philo->state_mutex);
-	if (philo->satisfied_count == philo->nb_philos)
+	pthread_mutex_lock(&sim->state_mutex);
+	if (sim->satisfied_count == sim->nb_philos)
 	{
-		philo->sim_state = ALL_SATISFIED;
-		pthread_mutex_unlock(&philo->state_mutex);
+		sim->sim_state = ALL_SATISFIED;
+		pthread_mutex_unlock(&sim->state_mutex);
 		return (true);
 	}
-	pthread_mutex_unlock(&philo->state_mutex);
+	pthread_mutex_unlock(&sim->state_mutex);
 	return (false);
 }

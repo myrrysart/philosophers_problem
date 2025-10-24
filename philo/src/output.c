@@ -14,29 +14,29 @@
 
 void	print_action(t_philosopher *philosopher, char *action)
 {
-	t_philo_system	*philo;
+	t_philo_system *sim;
 	long long		timestamp;
 	bool			ok;
 
-	philo = philosopher->system;
-	pthread_mutex_lock(&philo->state_mutex);
-	pthread_mutex_lock(&philo->output_mutex);
-	ok = (philo->sim_state == RUNNING);
+	sim = philosopher->system;
+	pthread_mutex_lock(&sim->state_mutex);
+	pthread_mutex_lock(&sim->output_mutex);
+	ok = (sim->sim_state == RUNNING);
 	if (ok)
 	{
-		timestamp = get_time() - philo->start_time;
+		timestamp = get_time() - sim->start_time;
 		printf("%lld %d %s\n", timestamp, philosopher->id + 1, action);
 	}
-	pthread_mutex_unlock(&philo->output_mutex);
-	pthread_mutex_unlock(&philo->state_mutex);
+	pthread_mutex_unlock(&sim->output_mutex);
+	pthread_mutex_unlock(&sim->state_mutex);
 }
 
 void	print_death(t_philosopher *philosopher)
 {
-	t_philo_system	*philo;
+	t_philo_system *sim;
 	long long		timestamp;
 
-	philo = philosopher->system;
-	timestamp = get_time() - philo->start_time;
+	sim = philosopher->system;
+	timestamp = get_time() - sim->start_time;
 	printf("%lld %d died\n", timestamp, philosopher->id + 1);
 }

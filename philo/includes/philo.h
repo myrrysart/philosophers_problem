@@ -87,10 +87,10 @@ typedef struct s_philo_system
 
 // Core system functions
 int								main(int argc, char **argv);
-int								init_system(t_philo_system *philo, char **argv,
+int								init_system(t_philo_system *sim, char **argv,
 									int argc);
-void							cleanup_system(t_philo_system *philo);
-int								init_mutexes(t_philo_system *philo);
+void							cleanup_system(t_philo_system *sim);
+int								init_mutexes(t_philo_system *sim);
 
 // Thread functions
 void							*philo_routine(void *arg);
@@ -106,8 +106,8 @@ void							release_forks(t_philosopher *philosopher);
 void							update_meal_data(t_philosopher *philosopher);
 
 // System monitors
-bool							check_deaths(t_philo_system *philo);
-bool							check_completion(t_philo_system *philo);
+bool							check_deaths(t_philo_system *sim);
+bool							check_completion(t_philo_system *sim);
 
 // Utilities
 long long						get_time(void);
@@ -116,6 +116,6 @@ void							print_action(t_philosopher *philosopher,
 									char *action);
 void							print_death(t_philosopher *philosopher);
 int								safe_atoi(char *str);
-int								init_mutexes(t_philo_system *philo);
+int								init_mutexes(t_philo_system *sim);
 
 #endif
