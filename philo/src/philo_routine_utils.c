@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 05:00:15 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/23 12:06:00 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/24 14:21:23 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ static void	apply_jitter(t_philosopher *p)
 	long long	now;
 	long long	deadline;
 	long long	remaining;
-	long long	jitter_seconds;
+	long long	jitter_ms;
 
 	if (p->jitter_us <= 0)
 		return ;
@@ -64,11 +64,11 @@ static void	apply_jitter(t_philosopher *p)
 	remaining = deadline - now;
 	if (remaining > (p->system->time_to_eat + 2))
 	{
-		jitter_seconds = p->jitter_us;
-		if (jitter_seconds > (remaining - (p->system->time_to_eat + 2)) * 1000)
-			jitter_seconds = (remaining - (p->system->time_to_eat + 2)) * 1000;
-		if (jitter_seconds > 0)
-			usleep(jitter_seconds);
+		jitter_ms = p->jitter_us;
+		if (jitter_ms > (remaining - (p->system->time_to_eat + 2)) * 1000)
+			jitter_ms = (remaining - (p->system->time_to_eat + 2)) * 1000;
+		if (jitter_ms > 0)
+			usleep(jitter_ms);
 	}
 }
 
