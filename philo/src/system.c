@@ -14,7 +14,7 @@
 
 void	update_meal_data(t_philosopher *philosopher)
 {
-	t_philo_system *sim;
+	t_philo_system	*sim;
 	long long		now;
 
 	sim = philosopher->system;

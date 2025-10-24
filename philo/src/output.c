@@ -14,7 +14,7 @@
 
 void	print_action(t_philosopher *philosopher, char *action)
 {
-	t_philo_system *sim;
+	t_philo_system	*sim;
 	long long		timestamp;
 	bool			ok;
 
@@ -33,7 +33,7 @@ void	print_action(t_philosopher *philosopher, char *action)
 
 void	print_death(t_philosopher *philosopher)
 {
-	t_philo_system *sim;
+	t_philo_system	*sim;
 	long long		timestamp;
 
 	sim = philosopher->system;

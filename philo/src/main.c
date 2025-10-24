@@ -37,8 +37,7 @@ static int	create_threads(t_philo_system *sim)
 {
 	if (create_and_check_if_all_are_done(sim))
 		return (1);
-	if (pthread_create(&sim->monitor_thread, NULL, monitor_routine,
-			sim) != 0)
+	if (pthread_create(&sim->monitor_thread, NULL, monitor_routine, sim) != 0)
 	{
 		pthread_mutex_lock(&sim->state_mutex);
 		sim->sim_state = PHILO_ERROR;
@@ -69,7 +68,7 @@ static void	join_threads(t_philo_system *sim)
 int	main(int argc, char **argv)
 {
 	t_philo_system	philo_system;
-	t_philo_system *sim;
+	t_philo_system	*sim;
 
 	philo_system = (t_philo_system){};
 	sim = &philo_system;

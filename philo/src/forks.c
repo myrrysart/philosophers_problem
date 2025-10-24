@@ -39,7 +39,7 @@ static bool	lock_second_and_check(t_philo_system *sim, t_philosopher *p,
 
 bool	try_acquire_forks(t_philosopher *philosopher)
 {
-	t_philo_system *sim;
+	t_philo_system	*sim;
 	int				first;
 	int				second;
 
@@ -66,7 +66,7 @@ bool	try_acquire_forks(t_philosopher *philosopher)
 
 void	release_forks(t_philosopher *philosopher)
 {
-	t_philo_system *sim;
+	t_philo_system	*sim;
 	int				first;
 	int				second;
 

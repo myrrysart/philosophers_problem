@@ -68,7 +68,7 @@ static void	run_cycle(t_philosopher *philosopher)
 void	*philo_routine(void *arg)
 {
 	t_philosopher	*philosopher;
-	t_philo_system *sim;
+	t_philo_system	*sim;
 
 	philosopher = (t_philosopher *)arg;
 	sim = philosopher->system;

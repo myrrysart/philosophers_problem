@@ -14,8 +14,8 @@
 
 static bool	monitor_startup_wait(t_philo_system *sim)
 {
-	long long		start_time;
-	long long		now;
+	long long	start_time;
+	long long	now;
 
 	while (1)
 	{
@@ -42,7 +42,7 @@ static bool	monitor_startup_wait(t_philo_system *sim)
 
 void	*monitor_routine(void *arg)
 {
-	t_philo_system *sim;
+	t_philo_system	*sim;
 
 	sim = (t_philo_system *)arg;
 	if (monitor_startup_wait(sim))

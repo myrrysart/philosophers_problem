@@ -12,7 +12,7 @@
 
 #include "philo.h"
 
-static int clean_after_mutex_failure(t_philo_system *sim, int i, int flag)
+static int	clean_after_mutex_failure(t_philo_system *sim, int i, int flag)
 {
 	int	j;
 
@@ -20,7 +20,7 @@ static int clean_after_mutex_failure(t_philo_system *sim, int i, int flag)
 		j = sim->nb_philos - 1;
 	else
 		j = i - 1;
-	i =  i - 1;
+	i = i - 1;
 	while (i > -1)
 	{
 		if (j > -1)
