@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 05:00:15 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/27 14:30:05 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/27 22:44:13 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,5 +70,6 @@ void	philo_think(t_philosopher *philosopher)
 	print_action(philosopher, "is thinking");
 	if (philosopher->stagger_ms > 0)
 		precise_sleep(philosopher->system, philosopher->stagger_ms);
-	apply_jitter(philosopher);
+	if (!(philosopher->meal_count == 0))
+		apply_jitter(philosopher);
 }
