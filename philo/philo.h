@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:05:36 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/27 14:47:25 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/27 17:15:38 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 # include <unistd.h>
 
 # define MAX_PHILOS 300
+# define NORMAL_EXIT -1
 
 typedef enum e_philo_state
 {
@@ -35,7 +36,9 @@ typedef enum e_sim_state
 	SOMEONE_DIED = (1 << 0),
 	ALL_SATISFIED = (1 << 1),
 	PHILO_ERROR = (1 << 2),
-	WAITING = (1 << 3)
+	PHILO_THREAD_ERROR = (1 << 3),
+	PHILO_MONITOR_ERROR = (1 << 4),
+	WAITING = (1 << 5)
 }								t_sim_state;
 
 typedef struct s_philo_system	t_philo_system;
@@ -115,7 +118,6 @@ void							print_action(t_philosopher *philosopher,
 void							print_death(t_philosopher *philosopher);
 int								safe_atoi(char *str);
 int								init_mutexes(t_philo_system *sim);
-
 void							precise_usleep(long long microseconds);
 
 #endif
