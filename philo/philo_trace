@@ -1,0 +1,161 @@
+----- TRACE BEGINS -----
+
+-- Basic Error Tests --
+
+-- One Philosopher Tests --
+
+-- No Death Tests --
+
+-- Death Tests --
+
+-- Combined: Invalid Args (extra) --
+
+-- Combined: Die (4 args) --
+
+die: 5 600 200 200: Program timed out. Possible infinite loop
+
+die: 200 122 60 60: Program timed out. Possible infinite loop
+
+-- Combined: Finish (stop after N eats) --
+
+-- Combined: Survive (4 args) --
+
+---- TRACE ENDS ----
+
+============================================================
+
+----- TRACE BEGINS -----
+
+-- Basic Error Tests --
+
+-- One Philosopher Tests --
+
+-- No Death Tests --
+
+-- Death Tests --
+
+-- Combined: Invalid Args (extra) --
+
+-- Combined: Die (4 args) --
+
+die: 5 600 200 200: Program timed out. Possible infinite loop
+
+-- Combined: Finish (stop after N eats) --
+
+-- Combined: Survive (4 args) --
+
+---- TRACE ENDS ----
+
+============================================================
+
+----- TRACE BEGINS -----
+
+-- Basic Error Tests --
+
+-- One Philosopher Tests --
+
+
+============================================================
+
+----- TRACE BEGINS -----
+
+-- Basic Error Tests --
+
+-- One Philosopher Tests --
+
+-- No Death Tests --
+
+-- Death Tests --
+
+-- Combined: Invalid Args (extra) --
+
+-- Combined: Die (4 args) --
+
+die: 5 600 200 200: Program timed out. Possible infinite loop
+
+-- Combined: Finish (stop after N eats) --
+
+-- Combined: Survive (4 args) --
+
+---- TRACE ENDS ----
+
+============================================================
+
+----- TRACE BEGINS -----
+
+-- Basic Error Tests --
+
+-- One Philosopher Tests --
+
+-- No Death Tests --
+
+11 900 150 90 20: Philosopher died
+	
+
+-- Death Tests --
+
+-- Combined: Invalid Args (extra) --
+
+-- Combined: Die (4 args) --
+
+die: 5 600 200 200: Program timed out. Possible infinite loop
+
+-- Combined: Finish (stop after N eats) --
+
+-- Combined: Survive (4 args) --
+
+---- TRACE ENDS ----
+
+============================================================
+
+----- TRACE BEGINS -----
+
+-- Basic Error Tests --
+
+-- One Philosopher Tests --
+
+-- No Death Tests --
+
+-- Death Tests --
+
+-- Combined: Invalid Args (extra) --
+
+-- Combined: Die (4 args) --
+
+die: 5 600 200 200: Program timed out. Possible infinite loop
+
+-- Combined: Finish (stop after N eats) --
+
+finish: 5 800 200 200 10: Philosophers did not eat for the correct time
+	Expected: 200 Actual: 
+
+-- Combined: Survive (4 args) --
+
+---- TRACE ENDS ----
+
+============================================================
+
+----- TRACE BEGINS -----
+
+-- Basic Error Tests --
+
+-- One Philosopher Tests --
+
+-- No Death Tests --
+
+4 210 100 100 10: Philosophers did not sleep for the correct time
+Expected: 100 Actual: 
+
+-- Death Tests --
+
+-- Combined: Invalid Args (extra) --
+
+-- Combined: Die (4 args) --
+
+die: 5 600 200 200: Program timed out. Possible infinite loop
+
+-- Combined: Finish (stop after N eats) --
+
+-- Combined: Survive (4 args) --
+
+---- TRACE ENDS ----
