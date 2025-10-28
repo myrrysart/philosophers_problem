@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:05:36 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/27 17:46:44 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/28 11:38:51 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,11 +37,9 @@ typedef enum e_sim_state
 	SOMEONE_DIED = (1 << 0),
 	ALL_SATISFIED = (1 << 1),
 	PHILO_ERROR = (1 << 2),
-	PHILO_THREAD_ERROR = (1 << 3),
-	PHILO_MONITOR_ERROR = (1 << 4),
+	MALLOC_ERROR = (1 << 3),
+	MUTEX_ERROR = (1 << 4),
 	WAITING = (1 << 5),
-	MALLOC_ERROR = (1 << 6),
-	MUTEX_MALLOC_ERROR = (1 << 7),
 }								t_sim_state;
 
 typedef struct s_philo_system	t_philo_system;
@@ -85,19 +83,23 @@ typedef struct s_philo_system
 	atomic_int					satisfied_count;
 
 	t_philosopher				*philosophers;
+	int							threads_initiated;
 	pthread_t					monitor_thread;
+	int							monitor_initiated;
 
 	pthread_mutex_t				*forks;
+	int							mutex_initiated;
 
 	atomic_int					sim_state;
 	pthread_mutex_t				output_mutex;
+	int							output_mutex_initiated;
 }								t_philo_system;
 
 // Core system functions
 int								main(int argc, char **argv);
 int								init_system(t_philo_system *sim, char **argv,
 									int argc);
-void							cleanup_system(t_philo_system *sim);
+int								cleanup_system(t_philo_system *sim);
 int								init_mutexes(t_philo_system *sim);
 
 // Thread functions
@@ -120,7 +122,5 @@ void							print_action(t_philosopher *philosopher,
 									char *action);
 void							print_death(t_philosopher *philosopher);
 int								safe_atoi(char *str);
-int								init_mutexes(t_philo_system *sim);
-void							precise_usleep(long long microseconds);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 11:31:49 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/27 17:36:20 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/28 11:20:22 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,22 +106,4 @@ int	init_system(t_philo_system *sim, char **argv, int argc)
 		return (1);
 	}
 	return (0);
-}
-
-void	cleanup_system(t_philo_system *sim)
-{
-	int	i;
-
-	if (sim->forks) {
-		i = 0;
-		while (i < sim->nb_philos) {
-			pthread_mutex_destroy(&sim->forks[i]);
-			i++;
-		}
-	}
-	pthread_mutex_destroy(&sim->output_mutex);
-	free(sim->forks);
-	sim->forks = NULL;
-	free(sim->philosophers);
-	sim->philosophers = NULL;
 }

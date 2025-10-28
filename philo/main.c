@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 11:31:58 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/27 17:14:51 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/28 11:31:23 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,11 @@ static int	create_and_check_if_all_are_done(t_philo_system *sim)
 		if (pthread_create(&sim->philosophers[i].thread, NULL, philo_routine,
 				&sim->philosophers[i]))
 		{
-			sim->sim_state |= PHILO_THREAD_ERROR | PHILO_ERROR;
+			sim->sim_state |= PHILO_ERROR;
 			printf("Error creating philosopher thread %d\n", i);
 			return (i);
 		}
+		sim->threads_initiated++;
 		i++;
 	}
 	return (0);
@@ -40,10 +41,11 @@ static int	create_threads(t_philo_system *sim)
 		return (i);
 	if (pthread_create(&sim->monitor_thread, NULL, monitor_routine, sim) != 0)
 	{
-		sim->sim_state |= PHILO_MONITOR_ERROR | PHILO_ERROR;
+		sim->sim_state |= PHILO_ERROR;
 		printf("Error creating monitor thread\n");
 		return (1);
 	}
+	sim->monitor_initiated = 1;
 	sim->start_time = get_time() + 400;
 	i = 0;
 	while (i < sim->nb_philos)
@@ -52,38 +54,45 @@ static int	create_threads(t_philo_system *sim)
 	return (0);
 }
 
-static void	join_threads(t_philo_system *sim, int j)
+static void	join_threads(t_philo_system *sim)
 {
 	int	i;
 
 	i = 0;
-	if (j == NORMAL_EXIT)
-	{
-		while (i < sim->nb_philos)
-			pthread_join(sim->philosophers[i++].thread, NULL);
+	while (i < sim->threads_initiated)
+		pthread_join(sim->philosophers[i++].thread, NULL);
+	if (sim->monitor_initiated)
 		pthread_join(sim->monitor_thread, NULL);
-		return ;
-	}
-	if (sim->sim_state & PHILO_THREAD_ERROR)
+}
+
+int	cleanup_system(t_philo_system *sim)
+{
+	int	i;
+
+	if (sim->forks) 
 	{
-		while (i < j)
-			pthread_join(sim->philosophers[i++].thread, NULL);
-		return ;
+		i = 0;
+		while (i < sim->mutex_initiated) 
+		{
+			pthread_mutex_destroy(&sim->forks[i]);
+			i++;
+		}
 	}
-	if (!(sim->sim_state & PHILO_MONITOR_ERROR))
-		pthread_join(sim->monitor_thread, NULL);
-	while (i < sim->nb_philos)
-	{
-		pthread_join(sim->philosophers[i].thread, NULL);
-		i++;
-	}
+	if (sim->output_mutex_initiated)
+		pthread_mutex_destroy(&sim->output_mutex);
+	if (sim->forks)
+		free(sim->forks);
+	sim->forks = NULL;
+	if (sim->philosophers)
+		free(sim->philosophers);
+	sim->philosophers = NULL;
+	return (sim->sim_state);
 }
 
 int	main(int argc, char **argv)
 {
 	t_philo_system	philo_system;
 	t_philo_system	*sim;
-	int				i;
 
 	philo_system = (t_philo_system){};
 	sim = &philo_system;
@@ -93,15 +102,9 @@ int	main(int argc, char **argv)
 		return (1);
 	}
 	if (init_system(sim, argv, argc) == 1)
-		return (1);
-	i = create_threads(sim);
-	if ((sim->sim_state & (PHILO_THREAD_ERROR | PHILO_MONITOR_ERROR)))
-	{
-		join_threads(sim, i);
-		cleanup_system(sim);
-		return (1);
-	}
-	join_threads(sim, NORMAL_EXIT);
-	cleanup_system(sim);
-	return (0);
+		return (cleanup_system(sim));
+	create_threads(sim);
+	join_threads(sim);
+	return ( cleanup_system(sim));
 }
+

@@ -6,26 +6,15 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 06:56:12 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/27 17:45:30 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/28 11:39:48 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static int	clean_after_mutex_failure(t_philo_system *sim, int i, int flag)
+static int mutex_error(t_philo_system *sim)
 {
-	int	j;
-
-	j = i - 1;
-	while (j > -1)
-	{
-		pthread_mutex_destroy(&sim->forks[j]);
-		j--;
-	}
-	if (flag > 0)
-		pthread_mutex_destroy(&sim->output_mutex);
-	free(sim->forks);
-	sim->forks = NULL;
+	sim->sim_state |= MUTEX_ERROR;
 	return (1);
 }
 
@@ -36,17 +25,16 @@ int	init_mutexes(t_philo_system *sim)
 	i = 0;
 	sim->forks = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t) * (sim->nb_philos));
 	if (!sim->forks)
-	{
-		sim->sim_state |= MUTEX_MALLOC_ERROR;
-		return (1);
-	}
+		return (mutex_error(sim));
 	while (i < sim->nb_philos)
 	{
 		if (pthread_mutex_init(&sim->forks[i], NULL) != 0)
-			return (clean_after_mutex_failure(sim, i, 0));
+			return (mutex_error(sim));
 		i++;
+		sim->mutex_initiated++;
 	}
 	if (pthread_mutex_init(&sim->output_mutex, NULL) != 0)
-		return (clean_after_mutex_failure(sim, i, 1));
+		return (mutex_error(sim));
+	sim->output_mutex_initiated++;
 	return (0);
 }
