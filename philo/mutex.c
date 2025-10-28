@@ -12,7 +12,7 @@
 
 #include "philo.h"
 
-static int mutex_error(t_philo_system *sim)
+static int	mutex_error(t_philo_system *sim)
 {
 	sim->sim_state |= MUTEX_ERROR;
 	return (1);
@@ -23,7 +23,8 @@ int	init_mutexes(t_philo_system *sim)
 	int	i;
 
 	i = 0;
-	sim->forks = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t) * (sim->nb_philos));
+	sim->forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t)
+			* (sim->nb_philos));
 	if (!sim->forks)
 		return (mutex_error(sim));
 	while (i < sim->nb_philos)

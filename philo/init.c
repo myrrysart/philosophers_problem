@@ -37,7 +37,6 @@ static void	init_one_philo(t_philo_system *s, int i, t_parsed_args *a)
 	int	left_fork;
 	int	right_fork;
 
-	
 	s->philosophers[i].system = s;
 	s->philosophers[i].id = i;
 	s->philosophers[i].nb_philos = s->nb_philos;
@@ -66,7 +65,8 @@ static void	init_philosophers(t_philo_system *sim, t_parsed_args *a)
 	int	i;
 
 	i = 0;
-	sim->philosophers = (t_philosopher *)malloc(sizeof(t_philosopher) * sim->nb_philos);
+	sim->philosophers = (t_philosopher *)malloc(sizeof(t_philosopher)
+			* sim->nb_philos);
 	if (!sim->philosophers)
 	{
 		sim->sim_state |= MALLOC_ERROR;

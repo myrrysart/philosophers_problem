@@ -69,10 +69,10 @@ int	cleanup_system(t_philo_system *sim)
 {
 	int	i;
 
-	if (sim->forks) 
+	if (sim->forks)
 	{
 		i = 0;
-		while (i < sim->mutex_initiated) 
+		while (i < sim->mutex_initiated)
 		{
 			pthread_mutex_destroy(&sim->forks[i]);
 			i++;
@@ -105,6 +105,5 @@ int	main(int argc, char **argv)
 		return (cleanup_system(sim));
 	create_threads(sim);
 	join_threads(sim);
-	return ( cleanup_system(sim));
+	return (cleanup_system(sim));
 }
-
