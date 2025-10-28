@@ -6,7 +6,7 @@
 #    By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/06/23 13:50:53 by jyniemit          #+#    #+#              #
-#    Updated: 2025/10/28 13:00:06 by jyniemit         ###   ########.fr        #
+#    Updated: 2025/10/28 13:01:05 by jyniemit         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ SRCS = main.c \
        utils.c \
        init.c \
        time.c \
-	   output.c \
+	   print.c \
        monitor.c \
        forks.c \
        philo_routine.c \
