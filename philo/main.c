@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 11:31:58 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/28 11:31:23 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/28 12:35:52 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ static int	create_and_check_if_all_are_done(t_philo_system *sim)
 		{
 			sim->sim_state |= PHILO_ERROR;
 			printf("Error creating philosopher thread %d\n", i);
-			return (i);
+			return (1);
 		}
 		sim->threads_initiated++;
 		i++;
