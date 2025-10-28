@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 11:32:11 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/27 13:53:16 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/28 12:13:18 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,6 @@ void	precise_sleep(t_philo_system *s, long long milliseconds)
 		current = get_time();
 		if (!(s->sim_state == RUNNING) || current - start >= milliseconds)
 			break ;
-		usleep(100);
+		usleep(50);
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 19:20:00 by jyniemit          #+#    #+#             */
-/*   Updated: 2025/10/27 14:29:54 by jyniemit         ###   ########.fr       */
+/*   Updated: 2025/10/28 12:15:12 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ static bool	philo_expired(t_philosopher *p, long long now)
 	deadline = p->next_deadline_ms;
 	if (deadline == 0)
 		return (false);
-	return (now > deadline);
+	return (now >= deadline);
 }
 
 static bool	check_deaths(t_philo_system *sim)
@@ -92,7 +92,7 @@ void	*monitor_routine(void *arg)
 			break ;
 		if (check_completion(sim))
 			break ;
-		usleep(1000);
+		usleep(50);
 	}
 	return (NULL);
 }
